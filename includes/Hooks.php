@@ -4,7 +4,6 @@ namespace MediaWiki\Extension\LinkCards;
 
 use Html;
 use MediaWiki\Hook\ParserFirstCallInitHook;
-use MediaWiki\MediaWikiServices;
 use Parser;
 use Title;
 
@@ -42,7 +41,7 @@ class Hooks implements ParserFirstCallInitHook {
 				'image-offset-val' => $args[ 'image-offset-val' . $cardNum ] ?? false,
 				'perrow' => $perRow,
 			];
-			$html .= $this->getCard( $cardArgs );
+			$html .= $this->getCard( $parser, $cardArgs );
 			$cardNum++;
 		}
 		return $this->addModuleGetOutput( $parser, $html );
@@ -61,7 +60,7 @@ class Hooks implements ParserFirstCallInitHook {
 			'image-offset-dir' => false,
 			'image-offset-val' => false,
 		] );
-		return $this->addModuleGetOutput( $parser, $this->getCard( $args ) );
+		return $this->addModuleGetOutput( $parser, $this->getCard( $parser, $args ) );
 	}
 
 	/**
@@ -80,10 +79,11 @@ class Hooks implements ParserFirstCallInitHook {
 	}
 
 	/**
+	 * @param Parser $parser
 	 * @param string[] $args
 	 * @return string
 	 */
-	private function getCard( array $args ): string {
+	private function getCard( Parser $parser, array $args ): string {
 		// Title.
 		$title = false;
 		if ( $args['title'] ) {
@@ -102,7 +102,7 @@ class Hooks implements ParserFirstCallInitHook {
 			$anchorParams = [ 'href' => $link ];
 		}
 		$main = Html::rawElement( 'span', [ 'class' => 'ext-linkcards-main' ], $title . ' ' . $args['body'] );
-		$anchor = Html::rawElement( 'a', $anchorParams,  $this->getImageHtml( $args ) . ' ' . $main );
+		$anchor = Html::rawElement( 'a', $anchorParams,  $this->getImageHtml( $parser, $args ) . ' ' . $main );
 		// Set per-row count to account for the gutter set in link-cards.less (of 1em).
 		$cardStyle = $args['perrow'] ? 'flex-basis: calc(' . ( 100 / $args['perrow'] ) . '% - 1em)' : null;
 		$card = Html::rawElement( 'div', [ 'class' => 'ext-linkcards-card', 'style' => $cardStyle ], $anchor );
@@ -132,17 +132,16 @@ class Hooks implements ParserFirstCallInitHook {
 	}
 
 	/**
+	 * @param Parser $parser
 	 * @param mixed[] $args
 	 * @return string
 	 */
-	private function getImageHtml( $args ): string {
+	private function getImageHtml( Parser $parser, array $args ): string {
 		if ( !$args['image'] ) {
 			return '';
 		}
 		$imageTitle = Title::newFromText( 'File:' . $args[ 'image' ] );
-		$file = MediaWikiServices::getInstance()
-			->getRepoGroup()
-			->findFile( $imageTitle );
+		[ $file, $title ] = $parser->fetchFileAndTitle( $imageTitle );
 		if ( !$file || !$file->exists() ) {
 			return '';
 		}
