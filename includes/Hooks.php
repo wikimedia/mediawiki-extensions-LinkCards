@@ -102,7 +102,7 @@ class Hooks implements ParserFirstCallInitHook {
 			$anchorParams = [ 'href' => $link ];
 		}
 		$main = Html::rawElement( 'span', [ 'class' => 'ext-linkcards-main' ], $title . ' ' . $args['body'] );
-		$anchor = Html::rawElement( 'a', $anchorParams,  $this->getImageHtml( $parser, $args ) . ' ' . $main );
+		$anchor = Html::rawElement( 'a', $anchorParams, $this->getImageHtml( $parser, $args ) . ' ' . $main );
 		// Set per-row count to account for the gutter set in link-cards.less (of 1em).
 		$cardStyle = $args['perrow'] ? 'flex-basis: calc(' . ( 100 / $args['perrow'] ) . '% - 1em)' : null;
 		$card = Html::rawElement( 'div', [ 'class' => 'ext-linkcards-card', 'style' => $cardStyle ], $anchor );
