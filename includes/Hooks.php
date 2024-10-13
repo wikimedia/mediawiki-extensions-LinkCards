@@ -36,6 +36,7 @@ class Hooks implements ParserFirstCallInitHook {
 				'title' => $args[ 'title' . $cardNum ] ?? false,
 				'body' => $args[ 'body' . $cardNum ] ?? false,
 				'image' => $args[ 'image' . $cardNum ] ?? false,
+				'image-position' => $args[ 'image-position' . $cardNum ] ?? 'top',
 				'image-width' => $args[ 'image-width' . $cardNum ] ?? $this->defaultImageWidth,
 				'image-offset-dir' => $args[ 'image-offset-dir' . $cardNum ] ?? false,
 				'image-offset-val' => $args[ 'image-offset-val' . $cardNum ] ?? false,
@@ -56,6 +57,7 @@ class Hooks implements ParserFirstCallInitHook {
 			'title' => false,
 			'body' => false,
 			'image' => false,
+			'image-position' => 'top',
 			'image-width' => $this->defaultImageWidth,
 			'image-offset-dir' => false,
 			'image-offset-val' => false,
@@ -104,8 +106,16 @@ class Hooks implements ParserFirstCallInitHook {
 		$main = Html::rawElement( 'span', [ 'class' => 'ext-linkcards-main' ], $title . ' ' . $args['body'] );
 		$anchor = Html::rawElement( 'a', $anchorParams, $this->getImageHtml( $parser, $args ) . ' ' . $main );
 		// Set per-row count to account for the gutter set in link-cards.less (of 1em).
-		$cardStyle = $args['perrow'] ? 'flex-basis: calc(' . ( 100 / $args['perrow'] ) . '% - 1em)' : null;
-		$card = Html::rawElement( 'div', [ 'class' => 'ext-linkcards-card', 'style' => $cardStyle ], $anchor );
+		$cardStyle = isset( $args['perrow'] ) ? 'flex-basis: calc(' . ( 100 / $args['perrow'] ) . '% - 1em)' : null;
+		$imagePos = 'top';
+		if ( in_array( $args['image-position'], [ 'top', 'end', 'bottom', 'start' ] ) ) {
+			$imagePos = $args['image-position'];
+		}
+		$cardAttrs = [
+			'class' => 'ext-linkcards-card ext-linkcards-card-image-pos-' . $imagePos,
+			'style' => $cardStyle,
+		];
+		$card = Html::rawElement( 'div', $cardAttrs, $anchor );
 		return $card;
 	}
 
@@ -151,6 +161,7 @@ class Hooks implements ParserFirstCallInitHook {
 		}
 		$style = '';
 		if (
+			// @todo Change left and right to be aliases of start and end.
 			in_array( $args['image-offset-dir'], [ 'top', 'left', 'bottom', 'right' ] )
 			&& $args['image-offset-val']
 		) {
