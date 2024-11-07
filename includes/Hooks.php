@@ -151,6 +151,9 @@ class Hooks implements ParserFirstCallInitHook {
 			return '';
 		}
 		$imageTitle = Title::newFromText( 'File:' . $args[ 'image' ] );
+		if ( $imageTitle === null ) {
+			return '';
+		}
 		[ $file, $title ] = $parser->fetchFileAndTitle( $imageTitle );
 		if ( !$file || !$file->exists() ) {
 			return '';
