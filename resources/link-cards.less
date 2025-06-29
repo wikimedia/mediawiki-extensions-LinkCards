@@ -8,7 +8,7 @@
 	a {
 		display: flex;
 		justify-content: space-between;
-		border: 1px solid #c0c0c0;
+		border: 1px solid @border-color-interactive;
 		border-radius: calc( @ext-linkcards-space / 3 );
 		width: 100%;
 		max-width: 100%;
@@ -86,10 +86,11 @@
 		flex-shrink: 0;
 	}
 
+	// Add hover colors if it's an actual link.
 	a:link:hover {
-		// Only add hover background if it's an actual link.
-		background-color: #efefef;
-		border-color: #707070;
+		background-color: @background-color-interactive--hover;
+		border-color: @border-color-interactive--hover;
+		color: inherit;
 	}
 }
 
