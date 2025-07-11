@@ -2,10 +2,10 @@
 
 namespace MediaWiki\Extension\LinkCards;
 
-use Html;
 use MediaWiki\Hook\ParserFirstCallInitHook;
-use Parser;
-use Title;
+use MediaWiki\Html\Html;
+use MediaWiki\Parser\Parser;
+use MediaWiki\Title\Title;
 
 class Hooks implements ParserFirstCallInitHook {
 
